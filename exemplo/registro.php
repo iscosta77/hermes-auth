@@ -15,12 +15,12 @@ $erros = [];
 $auth = new Auth($db);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // iscosta77/validators: regras declarativas (pt)
+    // iscosta77/validators: regras declarativas em string com pipe (pt)
     $v = Validator::make($_POST, [
-        'nome'      => ['required', 'min:3'],
-        'email'     => ['required', 'email'],
-        'senha'     => ['required', 'min:6'],
-        'confirmar' => ['required', 'same:senha'],
+        'nome'      => 'required|min:3',
+        'email'     => 'required|email',
+        'senha'     => 'required|min:6',
+        'confirmar' => 'required|same:senha',
     ]);
 
     if ($v->fails()) {
