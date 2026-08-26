@@ -1,0 +1,245 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Família iscosta77 — Arquitetura",
+    "subtitle": "Pacotes PHP sem framework que trabalham juntos (exemplo completo)"
+  },
+  "components": [
+    {
+      "id": "app",
+      "type": "frontend",
+      "label": "Aplicação (exemplo)",
+      "sublabel": "PHP + JS puro",
+      "pos": [
+        60,
+        90
+      ],
+      "size": [
+        190,
+        60
+      ]
+    },
+    {
+      "id": "auth",
+      "type": "security",
+      "label": "iscosta77/auth",
+      "sublabel": "login · registro · senha",
+      "pos": [
+        60,
+        270
+      ],
+      "size": [
+        190,
+        60
+      ]
+    },
+    {
+      "id": "validators",
+      "type": "backend",
+      "label": "iscosta77/validators",
+      "sublabel": "regras pt/en/es",
+      "pos": [
+        360,
+        270
+      ],
+      "size": [
+        190,
+        60
+      ]
+    },
+    {
+      "id": "uploadmulti",
+      "type": "backend",
+      "label": "iscosta77/upload-multiple",
+      "sublabel": "drop zone · lote",
+      "pos": [
+        360,
+        90
+      ],
+      "size": [
+        190,
+        60
+      ]
+    },
+    {
+      "id": "upload",
+      "type": "backend",
+      "label": "iscosta77/upload",
+      "sublabel": "valida · move · grava",
+      "pos": [
+        660,
+        90
+      ],
+      "size": [
+        190,
+        60
+      ]
+    },
+    {
+      "id": "crop",
+      "type": "backend",
+      "label": "iscosta77/crop-image",
+      "sublabel": "recorte · WebP · marca d'água",
+      "pos": [
+        660,
+        270
+      ],
+      "size": [
+        190,
+        60
+      ]
+    },
+    {
+      "id": "voodoo",
+      "type": "database",
+      "label": "iscos/voodoo-2026",
+      "sublabel": "Database · Table (ORM)",
+      "pos": [
+        960,
+        90
+      ],
+      "size": [
+        190,
+        60
+      ]
+    },
+    {
+      "id": "gallery",
+      "type": "frontend",
+      "label": "iscosta77/gallery",
+      "sublabel": "grade · lightbox JS puro",
+      "pos": [
+        960,
+        270
+      ],
+      "size": [
+        190,
+        60
+      ]
+    },
+    {
+      "id": "paginator",
+      "type": "frontend",
+      "label": "iscosta77/paginator",
+      "sublabel": "links pt/en/es",
+      "pos": [
+        960,
+        450
+      ],
+      "size": [
+        190,
+        60
+      ]
+    },
+    {
+      "id": "tools",
+      "type": "backend",
+      "label": "iscos/voodoo-tools",
+      "sublabel": "Image (crop/watermark)",
+      "pos": [
+        660,
+        450
+      ],
+      "size": [
+        190,
+        60
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "app",
+      "to": "auth",
+      "variant": "emphasis"
+    },
+    {
+      "from": "app",
+      "to": "uploadmulti",
+      "label": "POST fotos[]"
+    },
+    {
+      "from": "app",
+      "to": "validators",
+      "label": "Validator::make"
+    },
+    {
+      "from": "uploadmulti",
+      "to": "upload",
+      "label": "salvar()"
+    },
+    {
+      "from": "upload",
+      "to": "crop",
+      "variant": "emphasis"
+    },
+    {
+      "from": "upload",
+      "to": "voodoo",
+      "label": "hermes_uploads"
+    },
+    {
+      "from": "crop",
+      "to": "voodoo",
+      "label": "hermes_images"
+    },
+    {
+      "from": "auth",
+      "to": "voodoo",
+      "label": "hermes_users"
+    },
+    {
+      "from": "app",
+      "to": "gallery",
+      "label": "Gallery::grade"
+    },
+    {
+      "from": "app",
+      "to": "paginator",
+      "label": "Paginator::paginar"
+    },
+    {
+      "from": "tools",
+      "to": "crop",
+      "label": "alternativa GD",
+      "variant": "dashed"
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Família iscosta77 (Packagist)",
+      "wraps": [
+        "auth",
+        "validators",
+        "uploadmulti",
+        "upload",
+        "crop",
+        "gallery",
+        "paginator"
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Princípios",
+      "items": [
+        "PHP ^8.2 · MIT · zero dependências (só ext-gd)",
+        "Mensagens pt/en/es",
+        "Autoria: Hermes Agent · Publisher: Ildefonso Costa",
+        "Auto-update via GitHub Hook"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Dependências",
+      "items": [
+        "upload-multiple → upload → crop-image",
+        "auth → voodoo-2026",
+        "validators standalone",
+        "gallery + paginator standalone"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "Fluxo de Dados — Exemplo Completo iscosta77",
+    "subtitle": "Das fotos do visitante até a galeria publicada"
+  },
+  "stages": [
+    {
+      "label": "Entrada"
+    },
+    {
+      "label": "Processamento"
+    },
+    {
+      "label": "Banco"
+    },
+    {
+      "label": "Saída"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "s1",
+      "type": "frontend",
+      "label": "Visitante",
+      "sublabel": "login + fotos",
+      "stage": 0,
+      "row": 0
+    },
+    {
+      "id": "s2",
+      "type": "database",
+      "label": "hermes_users",
+      "sublabel": "auth",
+      "stage": 2,
+      "row": 0
+    },
+    {
+      "id": "t1",
+      "type": "security",
+      "label": "auth",
+      "sublabel": "login/registro",
+      "stage": 1,
+      "row": 0
+    },
+    {
+      "id": "t2",
+      "type": "backend",
+      "label": "upload-multiple",
+      "sublabel": "drop zone + lote",
+      "stage": 1,
+      "row": 1
+    },
+    {
+      "id": "t3",
+      "type": "backend",
+      "label": "crop-image",
+      "sublabel": "WebP + marca d'água",
+      "stage": 1,
+      "row": 2
+    },
+    {
+      "id": "t4",
+      "type": "backend",
+      "label": "validators",
+      "sublabel": "regras pt/en/es",
+      "stage": 1,
+      "row": 3
+    },
+    {
+      "id": "t5",
+      "type": "database",
+      "label": "voodoo-2026",
+      "sublabel": "uploads+images",
+      "stage": 2,
+      "row": 1
+    },
+    {
+      "id": "k1",
+      "type": "frontend",
+      "label": "gallery",
+      "sublabel": "grade + lightbox",
+      "stage": 3,
+      "row": 0
+    },
+    {
+      "id": "k2",
+      "type": "frontend",
+      "label": "paginator",
+      "sublabel": "links 1 2 3",
+      "stage": 3,
+      "row": 1
+    }
+  ],
+  "flows": [
+    {
+      "from": "s1",
+      "to": "t1",
+      "label": "POST email/senha"
+    },
+    {
+      "from": "t1",
+      "to": "s2",
+      "label": "verifica"
+    },
+    {
+      "from": "s1",
+      "to": "t2",
+      "label": "multipart fotos[]"
+    },
+    {
+      "from": "t2",
+      "to": "t3",
+      "label": "por arquivo"
+    },
+    {
+      "from": "t3",
+      "to": "t5",
+      "label": "INSERT"
+    },
+    {
+      "from": "t5",
+      "to": "k1",
+      "label": "fotos processadas"
+    },
+    {
+      "from": "k1",
+      "to": "k2",
+      "label": "fatia 12/pág"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "9 pacotes",
+      "items": [
+        "voodoo-2026 · voodoo-tools · auth · validators",
+        "upload · upload-multiple · crop-image",
+        "gallery · paginator"
+      ]
+    }
+  ]
+}
