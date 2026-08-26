@@ -243,27 +243,13 @@ final class Auth
             ->update(['senha_hash' => password_hash($novaSenha, PASSWORD_DEFAULT)]);
 
         // trocou a senha: invalida tokens de recuperacao pendentes
+        $this->criaTabelaTokens();
         $this->db->table('hermes_tokens')->where('usuario_id', $usuarioId)->delete();
     }
 
-    /**
-     * Gera token de recuperacao de senha (valido por X minutos).
-     * O app decide como entregar (email/WhatsApp) e chama redefinirSenha().
-     */
-    public function esqueciSenha(string $email, int $validadeMinutos = 30): string
+    /** Garante a tabela de tokens de recuperacao (sqlite ou mysql; idempotente). */
+    private function criaTabelaTokens(): void
     {
-        $t = self::TEXTOS[$this->opcoes['idioma']];
-        $usuario = $this->db->table($this->opcoes['tabela'])
-            ->where('email', strtolower(trim($email)))
-            ->findOne();
-
-        if ($usuario === null) {
-            // anti enumeração: mensagem genérica (o app decide o que exibir)
-            throw new RuntimeException($t['email_nao_encontrado']);
-        }
-
-        $token = bin2hex(random_bytes(32));
-        $tokenHash = hash('sha256', $token);   // banco nunca guarda o token cru
         $driver = $this->db->pdo()->getAttribute(\PDO::ATTR_DRIVER_NAME);
         if ($driver === 'sqlite') {
             $this->db->run(
@@ -288,6 +274,27 @@ final class Auth
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
             );
         }
+    }
+
+    /**
+     * Gera token de recuperacao de senha (valido por X minutos).
+     * O app decide como entregar (email/WhatsApp) e chama redefinirSenha().
+     */
+    public function esqueciSenha(string $email, int $validadeMinutos = 30): string
+    {
+        $t = self::TEXTOS[$this->opcoes['idioma']];
+        $usuario = $this->db->table($this->opcoes['tabela'])
+            ->where('email', strtolower(trim($email)))
+            ->findOne();
+
+        if ($usuario === null) {
+            // anti enumeração: mensagem genérica (o app decide o que exibir)
+            throw new RuntimeException($t['email_nao_encontrado']);
+        }
+
+        $token = bin2hex(random_bytes(32));
+        $tokenHash = hash('sha256', $token);   // banco nunca guarda o token cru
+        $this->criaTabelaTokens();
         $this->db->table('hermes_tokens')->insert([
             'usuario_id' => (int) $usuario->get('id'),
             'token' => $tokenHash,
