@@ -32,7 +32,7 @@ final class Auth
             'email_invalido' => 'E-mail inválido.',
             'email_uso' => 'Este e-mail já está em uso.',
             'nome_curto' => 'Informe o nome completo.',
-            'senha_curta' => 'A senha deve ter no mínimo 6 caracteres.',
+            'senha_curta' => 'A senha deve ter no mínimo 8 caracteres.',
             'senhas_diferem' => 'As senhas não conferem.',
             'credenciais' => 'E-mail ou senha incorretos.',
             'nao_logado' => 'Você precisa estar logado.',
@@ -43,7 +43,7 @@ final class Auth
             'email_invalido' => 'Invalid e-mail.',
             'email_uso' => 'This e-mail is already in use.',
             'nome_curto' => 'Please provide the full name.',
-            'senha_curta' => 'Password must be at least 6 characters.',
+            'senha_curta' => 'Password must be at least 8 characters.',
             'senhas_diferem' => 'Passwords do not match.',
             'credenciais' => 'Incorrect e-mail or password.',
             'nao_logado' => 'You must be logged in.',
@@ -54,7 +54,7 @@ final class Auth
             'email_invalido' => 'Correo electrónico no válido.',
             'email_uso' => 'Este correo ya está en uso.',
             'nome_curto' => 'Indique el nombre completo.',
-            'senha_curta' => 'La contraseña debe tener al menos 6 caracteres.',
+            'senha_curta' => 'La contraseña debe tener al menos 8 caracteres.',
             'senhas_diferem' => 'Las contraseñas no coinciden.',
             'credenciais' => 'Correo o contraseña incorrectos.',
             'nao_logado' => 'Debe iniciar sesión.',
@@ -85,6 +85,10 @@ final class Auth
     /** Garante a tabela de usuarios (idempotente; sqlite ou mysql). */
     public function criaTabela(): void
     {
+        // anti SQLi em DDL: nome da tabela só com [a-zA-Z0-9_]
+        if (!preg_match('/^[a-zA-Z0-9_]+$/', $this->opcoes['tabela'])) {
+            throw new \InvalidArgumentException('Nome de tabela invalido.');
+        }
         $driver = $this->db->pdo()->getAttribute(\PDO::ATTR_DRIVER_NAME);
         if ($driver === 'sqlite') {
             $this->db->run(
@@ -132,7 +136,7 @@ final class Auth
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             throw new RuntimeException($t['email_invalido']);
         }
-        if (strlen($senha) < 6) {
+        if (strlen($senha) < 8) {
             throw new RuntimeException($t['senha_curta']);
         }
         if ($senha !== $confirmar) {
@@ -144,11 +148,19 @@ final class Auth
             throw new RuntimeException($t['email_uso']);
         }
 
-        $id = $tabela->insert([
-            'nome' => $nome,
-            'email' => $email,
-            'senha_hash' => password_hash($senha, PASSWORD_DEFAULT),
-        ]);
+        try {
+            $id = $tabela->insert([
+                'nome' => $nome,
+                'email' => $email,
+                'senha_hash' => password_hash($senha, PASSWORD_DEFAULT),
+            ]);
+        } catch (\PDOException $e) {
+            // corrida (TOCTOU): a constraint UNIQUE protege; vira mensagem amigável
+            if ((int) $e->getCode() === 23000) {
+                throw new RuntimeException($t['email_uso']);
+            }
+            throw $e;
+        }
 
         return $tabela->findById($id);
     }
@@ -203,6 +215,12 @@ final class Auth
 
     public function logout(): void
     {
+        // invalida a sessao inteira (anti fixação + limpeza de chaves residuais)
+        $_SESSION = [];
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
+        session_regenerate_id(true);
         unset($_SESSION[$this->opcoes['sessao']]);
     }
 
@@ -216,7 +234,7 @@ final class Auth
         if ($usuario === null || !password_verify($senhaAtual, (string) $usuario->get('senha_hash'))) {
             throw new RuntimeException($t['credenciais']);
         }
-        if (strlen($novaSenha) < 6) {
+        if (strlen($novaSenha) < 8) {
             throw new RuntimeException($t['senha_curta']);
         }
 
@@ -237,10 +255,12 @@ final class Auth
             ->findOne();
 
         if ($usuario === null) {
+            // anti enumeração: mesma mensagem genérica (o app decide o que exibir)
             throw new RuntimeException($t['email_nao_encontrado']);
         }
 
         $token = bin2hex(random_bytes(32));
+        $tokenHash = hash('sha256', $token);   // banco nunca guarda o token cru
         $driver = $this->db->pdo()->getAttribute(\PDO::ATTR_DRIVER_NAME);
         if ($driver === 'sqlite') {
             $this->db->run(
@@ -267,7 +287,7 @@ final class Auth
         }
         $this->db->table('hermes_tokens')->insert([
             'usuario_id' => (int) $usuario->get('id'),
-            'token' => $token,
+            'token' => $tokenHash,
             'tipo' => 'senha',
             'expira_em' => time() + $validadeMinutos * 60,
         ]);
@@ -279,12 +299,12 @@ final class Auth
     public function redefinirSenha(string $token, string $novaSenha): void
     {
         $t = self::TEXTOS[$this->opcoes['idioma']];
-        if (strlen($novaSenha) < 6) {
+        if (strlen($novaSenha) < 8) {
             throw new RuntimeException($t['senha_curta']);
         }
 
         $registro = $this->db->table('hermes_tokens')
-            ->where('token', $token)
+            ->where('token', hash('sha256', $token))
             ->where('tipo', 'senha')
             ->findOne();
 
