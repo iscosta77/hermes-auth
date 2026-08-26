@@ -1,0 +1,22 @@
+{
+    "name": "iscosta77/hermes-exemplo",
+    "description": "Exemplo completo da familia iscosta77: login (auth), upload multiplo com drop zone (upload-multiple), recorte/WebP/marca d'agua (crop-image), validacao (validators), galeria com grade e carousel (gallery) e paginacao (paginator). Banco via iscos/voodoo-2026.",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "ext-gd": "*",
+        "iscos/voodoo-2026": "^1.0",
+        "iscos/voodoo-tools": "^1.0",
+        "iscosta77/validators": "^1.0",
+        "iscosta77/crop-image": "^1.0",
+        "iscosta77/upload": "^1.0",
+        "iscosta77/upload-multiple": "^1.0",
+        "iscosta77/gallery": "^1.0",
+        "iscosta77/paginator": "^1.0",
+        "iscosta77/auth": "^1.0"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

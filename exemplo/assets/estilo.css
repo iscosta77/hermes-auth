@@ -1,0 +1,59 @@
+/* Estilo do exemplo completo (identidade da família iscosta77) */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f7f7f7; color: #222; }
+
+.topo { background: #235135; color: #fff; padding: 14px 24px; display: flex;
+        justify-content: space-between; align-items: center; }
+.topo nav a { color: #cde8d8; text-decoration: none; margin-left: 14px; font-size: 14px; }
+.topo nav a:hover, .topo nav a.ativo { color: #fff; border-bottom: 2px solid #ea580c; }
+.topo .sub { margin-left: 10px; opacity: .75; font-size: 12px; }
+
+.miolo { max-width: 1100px; margin: 22px auto; padding: 0 18px; }
+.miolo h2 { color: #235135; margin-bottom: 14px; }
+.sub { color: #777; font-size: 12px; }
+
+.centro { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+.cartao { background: #fff; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,.08);
+          padding: 30px 34px; width: 380px; }
+.cartao h1 { color: #235135; font-size: 20px; margin-bottom: 4px; }
+
+.form label { display: block; margin: 12px 0 6px; font-size: 13px; color: #444; }
+.form input { width: 100%; padding: 9px 11px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+.form button, .dropzone button[type=submit] {
+  margin-top: 14px; width: 100%; padding: 10px; background: #235135; color: #fff;
+  border: none; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 700;
+}
+.form button:hover, .dropzone button[type=submit]:hover { background: #1a4129; }
+.form button:disabled { background: #9bb8a8; cursor: not-allowed; }
+
+.alerta { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c;
+          padding: 9px 12px; border-radius: 6px; margin: 10px 0; font-size: 13px; }
+.sucesso { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534;
+           padding: 9px 12px; border-radius: 6px; margin: 10px 0 14px; font-size: 13px; }
+.box { background: #fff; border: 1px solid #e2e2e2; border-radius: 8px; padding: 18px; text-align: center; }
+
+/* drop zone */
+.dropzone { border: 2px dashed #9bb8a8; border-radius: 12px; padding: 26px; text-align: center;
+            background: #fbfdfc; transition: border-color .15s, background .15s; }
+.dropzone.arrastando { border-color: #ea580c; background: #fff7ed; }
+.dz-mensagem { font-size: 15px; }
+.dz-lista { list-style: none; margin: 16px 0 0; text-align: left; display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+.dz-lista li { position: relative; background: #fff; border: 1px solid #e2e2e2; border-radius: 8px;
+               padding: 6px; font-size: 12px; display: flex; align-items: center; gap: 8px; }
+.dz-lista img { width: 44px; height: 44px; object-fit: cover; border-radius: 5px; }
+.dz-lista span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dz-remover { position: absolute; top: 2px; right: 4px; border: none; background: #fecaca;
+              color: #b91c1c; width: 18px; height: 18px; border-radius: 50%; cursor: pointer; font-size: 12px; line-height: 1; }
+.link { background: none; border: none; color: #235135; text-decoration: underline; cursor: pointer; font-size: 14px; }
+.dropzone button[type=submit] { max-width: 260px; margin-left: auto; margin-right: auto; display: block; }
+
+/* paginação (iscosta77/paginator) */
+.hermes-paginacao { margin: 20px 0; }
+.hermes-paginacao ul { list-style: none; display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.hermes-paginacao a, .hermes-paginacao span { display: inline-block; padding: 7px 12px; border-radius: 6px;
+  background: #fff; border: 1px solid #ddd; color: #235135; text-decoration: none; font-size: 13px; }
+.hermes-paginacao a:hover { background: #eef5f0; }
+.hermes-paginacao .ativo span { background: #235135; color: #fff; border-color: #235135; font-weight: 700; }
+.hermes-paginacao .desativado a { opacity: .4; pointer-events: none; }
+.hermes-paginacao .reticencias span { border: none; background: none; }

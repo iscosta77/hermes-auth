@@ -1,0 +1,6 @@
+/vendor/
+/banco.sqlite
+/public/uploads/*
+/public/cache/*
+!/public/uploads/.gitkeep
+!/public/cache/.gitkeep
