@@ -36,7 +36,7 @@ final class Auth
             'senhas_diferem' => 'As senhas não conferem.',
             'credenciais' => 'E-mail ou senha incorretos.',
             'nao_logado' => 'Você precisa estar logado.',
-            'email_nao_encontrado' => 'E-mail não encontrado.',
+            'email_nao_encontrado' => 'Se o e-mail estiver cadastrado, enviaremos as instruções de recuperação.',
             'token_invalido' => 'Token inválido ou expirado.',
         ],
         'en' => [
@@ -47,7 +47,7 @@ final class Auth
             'senhas_diferem' => 'Passwords do not match.',
             'credenciais' => 'Incorrect e-mail or password.',
             'nao_logado' => 'You must be logged in.',
-            'email_nao_encontrado' => 'E-mail not found.',
+            'email_nao_encontrado' => 'If the e-mail is registered, we will send the recovery instructions.',
             'token_invalido' => 'Invalid or expired token.',
         ],
         'es' => [
@@ -58,7 +58,7 @@ final class Auth
             'senhas_diferem' => 'Las contraseñas no coinciden.',
             'credenciais' => 'Correo o contraseña incorrectos.',
             'nao_logado' => 'Debe iniciar sesión.',
-            'email_nao_encontrado' => 'Correo no encontrado.',
+            'email_nao_encontrado' => 'Si el correo está registrado, enviaremos las instrucciones de recuperación.',
             'token_invalido' => 'Token no válido o caducado.',
         ],
     ];
@@ -241,6 +241,9 @@ final class Auth
         $this->db->table($this->opcoes['tabela'])
             ->where('id', $usuarioId)
             ->update(['senha_hash' => password_hash($novaSenha, PASSWORD_DEFAULT)]);
+
+        // trocou a senha: invalida tokens de recuperacao pendentes
+        $this->db->table('hermes_tokens')->where('usuario_id', $usuarioId)->delete();
     }
 
     /**
@@ -255,7 +258,7 @@ final class Auth
             ->findOne();
 
         if ($usuario === null) {
-            // anti enumeração: mesma mensagem genérica (o app decide o que exibir)
+            // anti enumeração: mensagem genérica (o app decide o que exibir)
             throw new RuntimeException($t['email_nao_encontrado']);
         }
 
@@ -316,6 +319,7 @@ final class Auth
             ->where('id', (int) $registro->get('usuario_id'))
             ->update(['senha_hash' => password_hash($novaSenha, PASSWORD_DEFAULT)]);
 
-        $this->db->table('hermes_tokens')->where('id', (int) $registro->get('id'))->delete();
+        // usa o token e invalida TODOS os pendentes do usuario
+        $this->db->table('hermes_tokens')->where('usuario_id', (int) $registro->get('usuario_id'))->delete();
     }
 }
