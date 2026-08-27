@@ -10,7 +10,6 @@
     ],
     "require": {
         "php": "^8.2",
-        "ext-password": "*",
         "ext-session": "*",
         "iscos/voodoo-2026": "^1.0"
     },
